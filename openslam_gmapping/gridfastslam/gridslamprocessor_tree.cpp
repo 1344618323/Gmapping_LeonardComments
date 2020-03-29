@@ -217,6 +217,18 @@ void GridSlamProcessor::resetTree(){
 	}
 }
 
+
+//(cxn)虽然acc_weight看起来没啥卵用，但还是标记一下
+/*      A	
+		|
+		B
+       / \
+	  C	 D	
+
+加入 aw(C)=0.1，传播后 aw(B)=0.1，此时 B->visitCounter=1 ！=B->child=2，所以传播终止
+加入 aw(D)=0.1，传播后 aw(B)=0.2，此时 B->visitCounter=2 ==B->child=2，所以传播 aw(A)=0.2
+*/
+
 double propagateWeight(GridSlamProcessor::TNode* n, double weight){
 	if (!n)
 		return weight;

@@ -191,11 +191,11 @@ template <class Cell, class Storage, const bool isClass>
 Cell& Map<Cell,Storage,isClass>::cell(const IntPoint& p) {
 	AccessibilityState s=m_storage.cellState(p);
 	if (! s&Inside)
-		assert(0);
+		assert(0);//(cxn)绝对不能是outside
 	//if (s&Allocated) return m_storage.cell(p); assert(0);
 
 	// this will never happend. Just to satify the compiler..
-	return m_storage.cell(p);
+	return m_storage.cell(p);//(cxn)调用的是 HierarchicalArray2D<Cell>::cell()
 
 }
 

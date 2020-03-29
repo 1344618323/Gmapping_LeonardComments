@@ -341,6 +341,12 @@ double ScanMatcher::optimize(OrientedPoint& pnew, const ScanMatcherMap& map, con
 	}
 	cout << endl;
 */	int c_iterations=0;
+	// (cxn)首先设定odom估计出的位姿current_Pose 其得分current_Score
+	// ldelta 与 adelta 都是 0.05
+	// 1. 机器人 分别 前后左右 左转 右转 算最高得分，此时位姿为best_Local_Pose，
+	// 2. 若得分比current_Score高，就修改current_Pose、current_Score，此时 会继续重复 第1步
+	// 3. 若得分比current_Score低，就会 对ldelta 与 adelta 减半处理，可以这样做3次
+
 	do{
 		if (bestScore>=currentScore){
 			refinement++;

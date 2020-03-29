@@ -161,7 +161,24 @@ inline double ScanMatcher::score(const ScanMatcherMap& map, const OrientedPoint&
 		IntPoint ipfree=map.world2map(pfree);
 		bool found=false;
 		Point bestMu(0.,0.);
-		for (int xx=-m_kernelSize; xx<=m_kernelSize; xx++)
+		//(cxn)说是似然域，其实与AMCL中的实现方式略有不同，
+		// 先计算激光的落点 phit，在计算比phit 短0.05*sqrt(2)*cos(lp.theta+*angle) , 0.05*sqrt(2)*sin(lp.theta+*angle)的pfree
+		// 注意，这里代码是有bug的，
+		// 并非 pfree.x+=(*r-map.getDelta()*freeDelta)*cos(lp.theta+*angle);
+		// 		pfree.y+=(*r-map.getDelta()*freeDelta)*sin(lp.theta+*angle);
+		// 而是 pfree.x+=(*r-freeDelta)*cos(lp.theta+*angle);
+		// 		pfree.y+=(*r-freeDelta)*sin(lp.theta+*angle);
+		// 再操作 pfree=pfree-phit
+		// 
+		// 理论上 pr 在 occupied格，pf在 free格
+		// 由于栅格累积值可能在栅格边缘，所以用了一个3*3的窗口
+		// for x=-1:1 （注意，单位是栅格，不是m）
+		//     for y=-1:1
+		//         pr=phit+[x,y]
+		//         并在pr基础上加pfree，得到 pf ，找到满足 pr>m_fullnessThreshold(0.1)，而pf<m_fullnessThreshold的 栅格
+		// 最多可以得到9个栅格，取 phit（注意是phit，不是pr！）与栅格累记坐标值的最小差 bestMu，累加 s+=exp(-1./m_gaussianSigma*bestMu*bestMu)
+		// 注意，每个激光束都要这么做，也就是说对激光束的变换不是统一的
+		for (int xx=-m_kernelSize; xx<=m_kernelSize; xx++)//m_kernel_Size默认大小为1
 		for (int yy=-m_kernelSize; yy<=m_kernelSize; yy++){
 			IntPoint pr=iphit+IntPoint(xx,yy);
 			IntPoint pf=pr+ipfree;
@@ -169,6 +186,7 @@ inline double ScanMatcher::score(const ScanMatcherMap& map, const OrientedPoint&
 			//if (s&Inside && s&Allocated){
 				const PointAccumulator& cell=map.cell(pr);
 				const PointAccumulator& fcell=map.cell(pf);
+				// m_fullness_Threshold : 0.1
 				if (((double)cell )> m_fullnessThreshold && ((double)fcell )<m_fullnessThreshold){
 					Point mu=phit-cell.mean();
 					if (!found){

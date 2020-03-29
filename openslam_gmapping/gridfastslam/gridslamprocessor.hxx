@@ -33,6 +33,8 @@ inline void GridSlamProcessor::scanMatch(const double* plainReading){
     //set up the selective copy of the active area
     //by detaching the areas that will be updated
     m_matcher.invalidateActiveArea();
+    // (cxn)这个函数用于将激光束从机器人到触碰点路上所有的栅格都加入到 HierarchicalArray2D::m_active_Area中，
+    // 注意将元素加入m_active_Area前，要先清空m_active_Area
     m_matcher.computeActiveArea(it->map, it->pose, plainReading);
   }
   if (m_infoStream)
@@ -51,6 +53,7 @@ inline void GridSlamProcessor::normalize(){
   m_weights.clear();
   double wcum=0;
   m_neff=0;
+  //(cxn)例子权重都加入到m_weights
   for (std::vector<Particle>::iterator it=m_particles.begin(); it!=m_particles.end(); it++){
     m_weights.push_back(exp(gain*(it->weight-lmax)));
     wcum+=m_weights.back();
@@ -113,6 +116,8 @@ inline bool GridSlamProcessor::resample(const double* plainReading, int adaptSiz
       //			cerr << i << "->" << m_indexes[i] << "B("<<oldNode->childs <<") ";
       node=new	TNode(p.pose, 0, oldNode, 0);
       node->reading=0;
+      // (cxn)这版代码有问题，应该是下面这句
+      // node->reading=reading;
       //			cerr << "A("<<node->parent->childs <<") " <<endl;
       
       temp.push_back(p);
@@ -156,6 +161,9 @@ inline bool GridSlamProcessor::resample(const double* plainReading, int adaptSiz
       node=new TNode(it->pose, 0.0, *node_it, 0);
       
       node->reading=0;
+      // (cxn)这版代码有问题，应该是下面这句
+      // node->reading=reading;
+
       it->node=node;
 
       //END: BUILDING TREE

@@ -151,6 +151,7 @@ struct uniform_resampler{
 
 /*Implementation of the above stuff*/
 template <class Particle, class Numeric>
+//(cxn)低方差重采样
 std::vector<unsigned int> uniform_resampler<Particle, Numeric>:: resampleIndexes(const std::vector<Particle>& particles, int nparticles) const{
 	Numeric cweight=0;
 

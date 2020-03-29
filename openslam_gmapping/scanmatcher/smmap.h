@@ -14,7 +14,7 @@ struct PointAccumulator{
 	*/
 	/*after begin*/
 	PointAccumulator(): acc(0,0), n(0), visits(0){}
-	PointAccumulator(int i): acc(0,0), n(0), visits(0){assert(i==-1);}
+	PointAccumulator(int i): acc(0,0), n(0), visits(0){assert(i==-1);}//(cxn)确保i只能是-1
 	/*after end*/
         inline void update(bool value, const Point& p=Point(0,0));
 	inline Point mean() const {return 1./n*Point(acc.x, acc.y);} //(acc.x/n acc.y/n)
